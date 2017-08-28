@@ -21,6 +21,7 @@ import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.ActionResponse;
 import org.elasticsearch.action.fieldstats.FieldStatsRequest;
+import org.elasticsearch.action.fieldstats.FieldStatsResponse;
 import org.elasticsearch.action.support.ActionFilter;
 import org.elasticsearch.action.support.ActionFilterChain;
 import org.elasticsearch.common.inject.Inject;
@@ -72,6 +73,17 @@ public class FieldStatsResponseFilter implements ActionFilter {
             @SuppressWarnings("unchecked")
             @Override
             public void onResponse(ActionResponse response) {
+                if(INDICES_FIELD_STATS_READ_ACTION.equals(action) && response instanceof FieldStatsResponse) {
+                    if(((FieldStatsResponse)response).getIndicesMergedFieldStats().size() == 0) {
+                        LOGGER.trace("Modifying the response to be {}", RestStatus.NOT_FOUND);
+                        Throwable err = new ElasticsearchException("The index is empty. This could mean data has not yet been collected.\n"
+                                + "You can use the Time Picker to change the time filter or select a higher time interval",
+                                RestStatus.NO_CONTENT);
+                        
+                        listener.onFailure(err);
+                    }
+                }
+                
                 listener.onResponse(response);
             }
 
