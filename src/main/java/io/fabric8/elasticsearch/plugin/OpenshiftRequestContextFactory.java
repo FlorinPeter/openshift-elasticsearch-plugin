@@ -16,6 +16,7 @@
 
 package io.fabric8.elasticsearch.plugin;
 
+import static io.fabric8.elasticsearch.plugin.KibanaIndexMode.SHARED;
 import static io.fabric8.elasticsearch.plugin.KibanaIndexMode.SHARED_OPS;
 import static io.fabric8.elasticsearch.plugin.KibanaIndexMode.UNIQUE;
 import static io.fabric8.elasticsearch.plugin.KibanaUserReindexFilter.getUsernameHash;
@@ -63,7 +64,7 @@ public class OpenshiftRequestContextFactory  {
                 ConfigurationSettings.DEFAULT_OPENSHIFT_OPS_PROJECTS);
         this.kibanaPrefix = settings.get(ConfigurationSettings.KIBANA_CONFIG_INDEX_NAME, ConfigurationSettings.DEFAULT_USER_PROFILE_PREFIX);
         this.kibanaIndexMode = settings.get(ConfigurationSettings.OPENSHIFT_KIBANA_INDEX_MODE, UNIQUE);
-        if(!ArrayUtils.contains(new String [] {UNIQUE, SHARED_OPS}, kibanaIndexMode.toLowerCase())) {
+        if(!ArrayUtils.contains(new String [] {UNIQUE, SHARED_OPS, SHARED}, kibanaIndexMode.toLowerCase())) {
             this.kibanaIndexMode = UNIQUE;
         }
         LOGGER.info("Using kibanaIndexMode: '{}'", this.kibanaIndexMode);
@@ -154,7 +155,10 @@ public class OpenshiftRequestContextFactory  {
         if(StringUtils.isBlank(username)) {
             return "";
         }
-        if(SHARED_OPS.equals(kibanaIndexMode) && isOpsUser) {
+        if((SHARED_OPS.equals(kibanaIndexMode) || SHARED.equals(kibanaIndexMode)) && isOpsUser) {
+            return kibanaPrefix + "_ops";
+        }
+        if(SHARED.equals(kibanaIndexMode)) {
             return kibanaPrefix;
         }
         return kibanaPrefix + "." + getUsernameHash(username);

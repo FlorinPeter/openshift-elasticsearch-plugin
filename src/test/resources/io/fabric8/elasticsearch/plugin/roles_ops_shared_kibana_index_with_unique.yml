@@ -7,7 +7,7 @@ gen_ocp_kibana_shared:
   indices:
     '*':
       '*': [INDEX_ANY_KIBANA]
-    ?kibana:
+    ?kibana_ops:
       '*': [INDEX_KIBANA]
 gen_project_foo_bar:
   indices:

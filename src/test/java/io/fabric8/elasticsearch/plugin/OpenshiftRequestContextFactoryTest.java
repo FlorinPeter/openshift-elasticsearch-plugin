@@ -103,9 +103,14 @@ public class OpenshiftRequestContextFactoryTest {
         switch (mode) {
         case "shared_ops":
             assertEquals("Exp. Kibana index mode to to be '.kibana'",
-                    ConfigurationSettings.DEFAULT_USER_PROFILE_PREFIX,
+                    ConfigurationSettings.DEFAULT_USER_PROFILE_PREFIX + "_ops",
                     context.getKibanaIndex());
             break;
+        case "shared":
+            assertEquals("Exp. Kibana index mode to to be '.kibana'",
+                    ConfigurationSettings.DEFAULT_USER_PROFILE_PREFIX,
+                    context.getKibanaIndex());
+            break;    
         case "unique":
             assertEquals("Exp. Kibana index mode to to be '.kibana.<userhash>'",
                     ConfigurationSettings.DEFAULT_USER_PROFILE_PREFIX + "." + KibanaUserReindexFilter.getUsernameHash(context.getUser()),
